@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monitor SO</title>
+<link rel="stylesheet" href="styles.css">
+<script src="vendor/xlsx.full.min.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <h1>Monitor SO</h1>
+    <span class="sub">Seguimiento de llegada de producto · Región</span>
+  </div>
+  <div class="top-actions">
+    <button class="btn" id="btnExport">Exportar Excel</button>
+    <button class="btn ghost" id="btnBackup">Respaldo ↓</button>
+    <label class="btn ghost">Importar respaldo<input type="file" id="inBackup" accept=".json" hidden></label>
+  </div>
+</header>
+
+<main>
+  <!-- Carga de archivos -->
+  <section class="card" id="loadCard">
+    <div class="card-h">
+      <h2>1 · Archivos</h2>
+      <span class="hint">Arrastra o selecciona los Excel; se detectan solos. Puedes actualizar uno solo y los demás se conservan.</span>
+    </div>
+    <div class="drop" id="drop">
+      <input type="file" id="inFiles" accept=".xlsx,.xls" multiple hidden>
+      <div class="slots">
+        <div class="slot" data-k="so"><b>SOs región</b><span class="st">—</span></div>
+        <div class="slot" data-k="to"><b>TOs región</b><span class="st">—</span></div>
+        <div class="slot" data-k="inv"><b>Inventario agencias</b><span class="st">—</span></div>
+        <div class="slot" data-k="ced"><b>Inventario Cedis</b><span class="st">—</span></div>
+      </div>
+      <button class="btn primary" id="btnPick">Seleccionar archivos…</button>
+    </div>
+    <div id="loadMsg" class="msg"></div>
+  </section>
+
+  <!-- KPIs -->
+  <section class="kpis" id="kpis"></section>
+
+  <!-- Tabs -->
+  <nav class="tabs" id="tabs">
+    <button data-tab="tabSO" class="on">SOs</button>
+    <button data-tab="tabAg">Resumen por agencia</button>
+    <button data-tab="tabTO">TOs manuales <span id="cntMan" class="pill"></span></button>
+    <button data-tab="tabOut">Salieron <span id="cntOut" class="pill"></span></button>
+  </nav>
+
+  <section class="card tab" id="tabSO">
+    <div class="filters">
+      <input type="search" id="fSearch" placeholder="Buscar SO, artículo, TO…">
+      <select id="fAg"><option value="">Todas las agencias</option></select>
+      <select id="fCom"><option value="">Comentario: todos</option><option value="__none">Sin comentario</option><option value="__any">Con comentario</option></select>
+      <label class="chk"><input type="checkbox" id="fAlert"> Solo con alertas</label>
+      <button class="btn ghost sm" id="fClear">Limpiar</button>
+    </div>
+    <div class="chips-row"><span class="lbl">Clasificación</span><div id="fCls" class="chips"></div></div>
+    <div class="chips-row"><span class="lbl">Estatus pago</span><div id="fPay" class="chips"></div></div>
+    <div class="tbl-wrap"><table class="tbl" id="tblSO"><thead></thead><tbody></tbody></table></div>
+    <div class="foot" id="soFoot"></div>
+  </section>
+
+  <section class="card tab hidden" id="tabAg">
+    <div class="tbl-wrap"><table class="tbl" id="tblAg"></table></div>
+    <p class="hint">Clic en un número para ver esas SOs.</p>
+  </section>
+
+  <section class="card tab hidden" id="tabTO">
+    <div class="card-h">
+      <h2>TOs manuales (aún no reflejadas en el Excel)</h2>
+      <span class="hint">Pega la tabla del correo (con o sin encabezado): TO · Ubicación destino · Nota (SOs) · Artículo · Cantidad. Se eliminan solas cuando la TO aparece en el archivo de TOs.</span>
+    </div>
+    <textarea id="manPaste" rows="6" placeholder="TO184082	16017 CUERNAVACA MOR	SO1094009,SO1144646	ALPINA300/GR-2027	2.00"></textarea>
+    <div class="row"><button class="btn primary" id="btnManAdd">Agregar TOs</button><button class="btn ghost" id="btnManClear">Borrar todas</button><span id="manMsg" class="msg"></span></div>
+    <div class="tbl-wrap"><table class="tbl" id="tblMan"></table></div>
+  </section>
+
+  <section class="card tab hidden" id="tabOut">
+    <div class="card-h"><h2>SOs que salieron desde la carga anterior</h2><span class="hint">Probablemente facturadas o canceladas. Se muestra su último estatus conocido.</span></div>
+    <div class="tbl-wrap"><table class="tbl" id="tblOut"></table></div>
+  </section>
+</main>
+
+<div id="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>

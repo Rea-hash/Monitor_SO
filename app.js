@@ -158,8 +158,14 @@ function parseManual(txt) {
     if (!line.trim()) continue;
     const c = line.split('\t').map(s => s.trim());
     if (c.length < 4 || !/^TO\d+/i.test(c[0])) continue; // salta encabezados
-    const sos = (c[2] || '').split(/[,;\s]+/).filter(s => /^SO\d+/i.test(s)).map(s => s.toUpperCase());
-    out.push({ to: c[0].toUpperCase(), dest: c[1], sos, art: norm(c[3]), qty: num(c[4]) || 1, added: today() });
+    // Las columnas pueden venir en distinto orden: se detectan por contenido.
+    const rest = c.slice(2);
+    const soCell = rest.find(x => /SO\d+/i.test(x)) || '';
+    const artCell = rest.find(x => x.includes('/') && !/SO\d+/i.test(x)) || '';
+    const qtyCell = [...rest].reverse().find(x => /^\d+([.,]\d+)?$/.test(x));
+    const sos = (soCell.match(/SO\d+/gi) || []).map(s => s.toUpperCase());
+    if (!artCell) continue;
+    out.push({ to: c[0].toUpperCase(), dest: c[1], sos, art: norm(artCell), qty: num(qtyCell) || 1, added: today() });
   }
   return out;
 }
